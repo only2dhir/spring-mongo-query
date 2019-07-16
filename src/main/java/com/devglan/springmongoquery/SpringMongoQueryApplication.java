@@ -36,7 +36,7 @@ public class SpringMongoQueryApplication {
 	@Bean
 	CommandLineRunner init(EmployeeRepository employeeRepository, EmpRepository empRepository){
 		return args -> {
-            //employeeRepository.deleteAll();
+            employeeRepository.deleteAll();
 			List<Employee> employees = Stream.of(1, 2, 3, 4).map(count -> {
 				Employee employee = new Employee();
 				employee.setName("Emp " + count);
@@ -48,7 +48,7 @@ public class SpringMongoQueryApplication {
 			}).collect(Collectors.toList());
 
 			logger.info("Going to save employee");
-			employeeRepository.save(employees.get(0));
+			employeeRepository.saveAll(employees);
 
 			//PageRequest firstPageRequest = PageRequest.of(0, 3);
 			//PageRequest secondPageRequest = PageRequest.of(0, 3, Sort.by("salary"));
@@ -75,7 +75,7 @@ public class SpringMongoQueryApplication {
 
             //employeeRepository.findByRegex("^Em");
 
-            logger.info(empRepository.findEmployeeByPage().getContent().toString());
+            //logger.info(empRepository.findEmployeeByPage().getContent().toString());
 
             /*QEmployee qEmployee = new QEmployee("employee");
 			Predicate predicate = qEmployee.name.eq("Emp 1");
@@ -85,6 +85,8 @@ public class SpringMongoQueryApplication {
 
 			employeeRepository.findAll(qEmployee.name.contains("p"),
 					new PageRequest(0, 2, Sort.Direction.ASC, "salary"));*/
+
+            logger.info(empRepository.findSalary().toString());
 		};
 	}
 

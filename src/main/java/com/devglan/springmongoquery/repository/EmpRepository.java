@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -14,6 +15,8 @@ import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Repository
 public class EmpRepository {
@@ -61,6 +64,31 @@ public class EmpRepository {
                 list,
                 pageRequest,
                 () -> mongoTemplate.count(query, Employee.class));
+    }
+
+    public List<Employee> findSalary(){
+       /* Query query = new Query();
+        query.fields().exclude("position").exclude("band");
+        query.addCriteria(Criteria.where("salary").lt(898888).gt(113));*/
+
+
+        //$match
+        MatchOperation salaryMatch = Aggregation.match(new Criteria("salary").gt(123));
+
+        //$group
+        GroupOperation groupByBand = group("band")
+                .sum("salary").as("salary");
+
+        //$sort
+        SortOperation sort = sort(new Sort(Sort.Direction.DESC, "salary"));
+
+        Aggregation aggregation = newAggregation(
+                groupByBand, salaryMatch, sort);
+
+        AggregationResults<Employee> result = mongoTemplate.aggregate(
+                aggregation, "result", Employee.class);
+        return result.getMappedResults();
+        //return mongoTemplate.find(query, Employee.class);
     }
 
 
